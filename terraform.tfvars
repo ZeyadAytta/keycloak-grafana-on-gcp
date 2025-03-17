@@ -21,3 +21,4 @@ keycloak_hostname = keycloak.cloudfiftytwo.com
 grafana_hostname      = "grafana.cloudfiftytwo.com"
 grafana_admin_password = "Passw0rd123"  # Replace with a secure password
 
+radius_shared_secret = "Passw0rd123"

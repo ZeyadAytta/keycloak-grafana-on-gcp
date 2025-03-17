@@ -51,3 +51,9 @@ variable "grafana_admin_password" {
   type        = string
   sensitive   = true
 }
+variable "radius_shared_secret" {
+  description = "Shared secret for RADIUS authentication"
+  type        = string
+  sensitive   = true
+}
+

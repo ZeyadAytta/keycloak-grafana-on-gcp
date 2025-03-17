@@ -117,3 +117,25 @@ module "grafana" {
   # resource_requests_cpu  = "100m"
   # resource_requests_memory = "128Mi"
 }
+module "keycloak_radius" {
+  source = "./modules/keycloak-radius"
+
+  # GKE settings
+  gke_cluster_name = var.cluster_name
+  gke_project      = var.project_id  # Adjust variable name if needed
+  gke_region       = var.region
+
+  # Keycloak settings
+  keycloak_hostname    = "keycloak-rad.cloudfiftytwo.com"
+  keycloak_admin_user  = "admin"
+  keycloak_admin_password = var.keycloak_admin_password
+
+  # RADIUS settings
+  radius_shared_secret = var.radius_shared_secret
+  radius_auth_port     = 1812
+  radius_accounting_port = 1813
+
+  # Certificate management
+  create_certificate = false  # Set to false since certificate already exists
+}
+

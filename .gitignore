@@ -4,3 +4,4 @@
 rancher/
 *.sh
 .terraform/
+.terraform.lock.hcl
