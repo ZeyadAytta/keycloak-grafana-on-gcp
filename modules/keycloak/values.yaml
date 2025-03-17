@@ -1,0 +1,112 @@
+# Default values for Keycloak
+replicas: ${keycloak_replicas}
+
+# Image configuration
+image:
+  repository: quay.io/keycloak/keycloak
+  tag: 22.0.1
+  pullPolicy: IfNotPresent
+
+# Service configuration
+service:
+  type: ClusterIP
+  port: 80
+  
+# Resources
+resources:
+  limits:
+    cpu: "200m"
+    memory: "512Mi"
+  requests:
+    cpu: "100m"
+    memory: "256Mi"
+
+# Keycloak configuration
+extraEnv: |
+  - name: KEYCLOAK_ADMIN
+    value: admin
+  - name: KEYCLOAK_ADMIN_PASSWORD
+    value: ${admin_password}
+  - name: KC_PROXY
+    value: edge
+  - name: KC_HTTP_RELATIVE_PATH
+    value: /
+  - name: KC_HEALTH_ENABLED
+    value: "true"
+  - name: KC_METRICS_ENABLED
+    value: "true"
+
+# Commands
+command:
+  - /opt/keycloak/bin/kc.sh
+  - start
+  - --optimized
+
+args: []
+
+# PostgreSQL configuration
+postgresql:
+  enabled: false  # We manage this separately
+
+# Ingress configuration
+ingress:
+  enabled: true
+  ingressClassName: nginx
+  annotations:
+    kubernetes.io/ingress.class: nginx
+    cert-manager.io/cluster-issuer: letsencrypt-prod
+    nginx.ingress.kubernetes.io/ssl-passthrough: "false"
+    nginx.ingress.kubernetes.io/backend-protocol: "HTTP"
+    nginx.ingress.kubernetes.io/ssl-redirect: "true"
+    nginx.ingress.kubernetes.io/proxy-buffer-size: "128k"
+  rules:
+    - host: ${keycloak_hostname}
+      paths:
+        - path: /
+          pathType: Prefix
+  tls:
+    - hosts:
+        - ${keycloak_hostname}
+      secretName: keycloak-server-tls
+
+# Persistence configuration
+persistence:
+  deployPostgres: false  # We manage this separately
+  dbVendor: postgres
+
+# High availability
+high-availability:
+  enabled: true
+
+# Health and startup probes
+livenessProbe:
+  initialDelaySeconds: 30
+  timeoutSeconds: 5
+  failureThreshold: 6
+  successThreshold: 1
+  periodSeconds: 10
+
+readinessProbe:
+  initialDelaySeconds: 30
+  timeoutSeconds: 5
+  failureThreshold: 6
+  successThreshold: 1
+  periodSeconds: 10
+  
+# Extra volumes for config or extensions
+extraVolumes: []
+extraVolumeMounts: []
+
+# Pod affinity/anti-affinity
+affinity:
+  podAntiAffinity:
+    preferredDuringSchedulingIgnoredDuringExecution:
+    - weight: 100
+      podAffinityTerm:
+        labelSelector:
+          matchExpressions:
+          - key: app.kubernetes.io/name
+            operator: In
+            values:
+            - keycloak
+        topologyKey: kubernetes.io/hostname

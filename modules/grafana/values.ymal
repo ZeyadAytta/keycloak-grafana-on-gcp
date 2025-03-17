@@ -1,0 +1,85 @@
+# modules/grafana/values.yaml
+# Default values for Grafana
+replicas: ${grafana_replicas}
+
+# Image configuration
+image:
+  repository: grafana/grafana
+  tag: ${grafana_version}
+  pullPolicy: IfNotPresent
+
+# Service configuration
+service:
+  type: ClusterIP
+  port: 80
+  targetPort: 3000
+
+# Resources optimized for GKE free tier
+resources:
+  limits:
+    cpu: ${resource_limits_cpu}
+    memory: ${resource_limits_memory}
+  requests:
+    cpu: ${resource_requests_cpu}
+    memory: ${resource_requests_memory}
+
+# Grafana configuration
+grafana:
+  adminPassword: ${admin_password}
+  
+# Persistence configuration
+persistence:
+  enabled: true
+  storageClassName: standard
+  accessModes:
+    - ReadWriteOnce
+  size: 5Gi
+
+# Ingress configuration
+ingress:
+  enabled: true
+  ingressClassName: nginx
+  annotations:
+    kubernetes.io/ingress.class: nginx
+    cert-manager.io/cluster-issuer: letsencrypt-prod
+    nginx.ingress.kubernetes.io/ssl-passthrough: "false"
+    nginx.ingress.kubernetes.io/backend-protocol: "HTTP"
+    nginx.ingress.kubernetes.io/ssl-redirect: "true"
+  hosts:
+    - host: ${grafana_hostname}
+      paths:
+        - path: /
+          pathType: Prefix
+  tls:
+    - secretName: grafana-server-tls
+      hosts:
+        - ${grafana_hostname}
+
+# Health and startup probes
+livenessProbe:
+  initialDelaySeconds: 60
+  timeoutSeconds: 5
+  failureThreshold: 6
+  successThreshold: 1
+  periodSeconds: 10
+  
+readinessProbe:
+  initialDelaySeconds: 30
+  timeoutSeconds: 5
+  failureThreshold: 6
+  successThreshold: 1
+  periodSeconds: 10
+
+# Pod affinity for better distribution (optional for free tier)
+affinity:
+  podAntiAffinity:
+    preferredDuringSchedulingIgnoredDuringExecution:
+    - weight: 100
+      podAffinityTerm:
+        labelSelector:
+          matchExpressions:
+          - key: app
+            operator: In
+            values:
+            - grafana
+        topologyKey: kubernetes.io/hostname

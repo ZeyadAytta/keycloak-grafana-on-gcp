@@ -1,0 +1,125 @@
+# modules/cert-manager/main.tf
+
+resource "kubernetes_namespace" "cert_manager" {
+  metadata {
+    name = "cert-manager"
+    labels = {
+      "cert-manager.io/disable-validation" = "true"
+    }
+  }
+}
+
+# Install cert-manager CRDs
+resource "null_resource" "cert_manager_crds" {
+  provisioner "local-exec" {
+    command = <<EOF
+kubectl apply --validate=false -f https://github.com/cert-manager/cert-manager/releases/download/v1.10.1/cert-manager.crds.yaml
+sleep 30
+EOF
+  }
+  depends_on = [kubernetes_namespace.cert_manager]
+}
+
+resource "helm_release" "cert_manager" {
+  name             = "cert-manager"
+  repository       = "https://charts.jetstack.io"
+  chart            = "cert-manager"
+  namespace        = kubernetes_namespace.cert_manager.metadata[0].name
+  version          = "v1.10.1"
+  create_namespace = false
+  wait             = true
+  timeout          = 600
+
+  set {
+    name  = "installCRDs"
+    value = "false"
+  }
+
+  set {
+    name  = "webhook.hostNetwork"
+    value = "false"
+  }
+
+  set {
+    name  = "webhook.port"
+    value = "10250"
+  }
+
+  set {
+    name  = "webhook.securePort"
+    value = "10250"
+  }
+
+  set {
+    name  = "webhook.timeoutSeconds"
+    value = "30"
+  }
+
+  set {
+    name  = "webhook.livenessProbe.failureThreshold"
+    value = "3"
+  }
+
+  set {
+    name  = "webhook.readinessProbe.failureThreshold"
+    value = "3"
+  }
+
+  set {
+    name  = "webhook.extraArgs[0]"
+    value = "--v=2"
+  }
+
+  set {
+    name  = "webhook.resources.requests.cpu"
+    value = "100m"
+  }
+
+  set {
+    name  = "webhook.resources.requests.memory"
+    value = "128Mi"
+  }
+
+  set {
+    name  = "webhook.resources.limits.cpu"
+    value = "500m"
+  }
+
+  set {
+    name  = "webhook.resources.limits.memory"
+    value = "256Mi"
+  }
+
+  depends_on = [null_resource.cert_manager_crds]
+}
+
+resource "time_sleep" "wait_for_cert_manager" {
+  depends_on = [helm_release.cert_manager]
+  create_duration = "90s"
+}
+
+# Create ClusterIssuer using kubectl
+resource "null_resource" "cluster_issuer" {
+  provisioner "local-exec" {
+    command = <<EOF
+cat <<EOT | kubectl apply -f -
+apiVersion: cert-manager.io/v1
+kind: ClusterIssuer
+metadata:
+  name: letsencrypt-prod
+spec:
+  acme:
+    server: https://acme-v02.api.letsencrypt.org/directory
+    email: ${var.email}
+    privateKeySecretRef:
+      name: letsencrypt-prod
+    solvers:
+    - http01:
+        ingress:
+          class: nginx
+EOT
+EOF
+  }
+  depends_on = [time_sleep.wait_for_cert_manager]
+}
+

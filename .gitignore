@@ -1,0 +1,6 @@
+*.json
+*.tfstate.*
+*.tfstate
+rancher/
+*.sh
+.terraform/

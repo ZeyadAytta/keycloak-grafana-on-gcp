@@ -1,0 +1,38 @@
+server:
+  ingress:
+    enabled: true
+    ingressClassName: nginx
+    hosts:
+      - ${argocd_hostname}
+    paths:
+      - /
+    pathType: Prefix
+
+  extraArgs:
+    - --insecure
+
+  service:
+    type: ClusterIP
+
+configs:
+  params:
+    server.insecure: true
+
+redis-ha:
+  enabled: false
+
+controller:
+  enableStatefulSet: true
+
+repoServer:
+  autoscaling:
+    enabled: false
+
+applicationSet:
+  enabled: true
+
+notifications:
+  enabled: false
+
+dex:
+  enabled: false

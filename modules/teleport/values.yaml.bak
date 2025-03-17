@@ -1,0 +1,29 @@
+clusterName: "teleport-cluster"
+
+teleport:
+  acme: false
+  proxyListenerMode: "multiplex"
+  auth:
+    enabled: true
+    connection:
+      web_listen_addr: "0.0.0.0:3080"
+      proxy_listener_mode: "multiplex"
+  proxy:
+    tls:
+      enabled: true
+      hosts:
+        - ${proxy_service_domain}
+        - ${auth_service_domain}
+  ingress:
+    enabled: true
+    annotations:
+      kubernetes.io/ingress.class: nginx
+    hosts:
+      - host: ${proxy_service_domain}
+        paths:
+          - path: /
+            pathType: Prefix
+      - host: ${auth_service_domain}
+        paths:
+          - path: /
+            pathType: Prefix
