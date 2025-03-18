@@ -13,6 +13,14 @@ terraform {
       source  = "hashicorp/kubernetes"
       version = "~> 2.0"
     }
+    keycloak = {
+      source  = "mrparkers/keycloak"
+      version = "~> 4.0"
+    }
+    grafana = {
+      source  = "grafana/grafana"
+      version = "~> 2.0"
+    }
   }
 }
 
@@ -37,6 +45,17 @@ provider "helm" {
   }
 }
 
+provider "keycloak" {
+  url      = "https://keycloak-rad.cloudfiftytwo.com"
+  client_id = "admin-cli"
+  username  = var.keycloak_admin_user
+  password  = var.keycloak_admin_password
+  tls_insecure_skip_verify = true
+}
+provider "grafana" {
+  url  = "https://${var.grafana_url}"
+  auth = "${var.grafana_admin_user}:${var.grafana_admin_password}"
+}
 module "gke" {
   source = "./modules/gke"
 
@@ -138,4 +157,24 @@ module "keycloak_radius" {
   # Certificate management
   create_certificate = false  # Set to false since certificate already exists
 }
-
+# Grafana-Keycloak Integration
+module "grafana_keycloak_integration" {
+  source = "./modules/grafana-keycloak-integration"
+  
+  # Domain values
+  grafana_url  = "grafana.cloudfiftytwo.com"
+  keycloak_url = "keycloak.cloudfiftytwo.com"
+  
+  # Realm name
+  keycloak_realm = "cloudfiftytwo"
+  
+  # Admin credentials
+  grafana_admin_user     = var.grafana_admin_user
+  grafana_admin_password = var.grafana_admin_password
+  keycloak_admin_user    = var.keycloak_admin_user
+  keycloak_admin_password = var.keycloak_admin_password
+  
+  # OAuth client configuration
+  grafana_oauth_client_id     = "grafana"
+  grafana_oauth_client_secret = var.grafana_oauth_client_secret
+}

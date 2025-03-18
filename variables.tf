@@ -56,4 +56,69 @@ variable "radius_shared_secret" {
   type        = string
   sensitive   = true
 }
+variable "keycloak_url" {
+  type        = string
+  description = "The URL of the Keycloak instance"
+  default     = "keycloak.cloudfiftytwo.com"
+}
 
+variable "grafana_url" {
+  type        = string
+  description = "The URL of the Grafana instance"
+  default     = "grafana.cloudfiftytwo.com"
+}
+
+variable "keycloak_admin_user" {
+  type        = string
+  description = "The admin username for Keycloak"
+  default     = "admin"
+}
+
+variable "grafana_admin_user" {
+  type        = string
+  description = "The admin username for Grafana"
+  default     = "admin"
+}
+
+
+variable "grafana_oauth_client_secret" {
+  type        = string
+  description = "The client secret for Grafana in Keycloak"
+  sensitive   = true
+}
+variable "default_admin_password" {
+  type        = string
+  description = "Default password for the admin user in Keycloak"
+  sensitive   = true
+  default     = "Admin123!"
+}
+
+variable "default_viewer_password" {
+  type        = string
+  description = "Default password for the viewer user in Keycloak"
+  sensitive   = true
+  default     = "Viewer123!"
+}
+
+variable "grafana_namespace" {
+  type        = string
+  description = "Kubernetes namespace where Grafana is deployed"
+  default     = "grafana"
+}
+
+variable "grafana_hostname" {
+  type        = string
+  description = "The hostname for Grafana (legacy variable)"
+  default     = "grafana.cloudfiftytwo.com"
+}
+variable "grafana_helm_repo" {
+  type        = string
+  description = "Helm repository for Grafana"
+  default     = "https://grafana.github.io/helm-charts"
+}
+
+variable "grafana_chart_version" {
+  type        = string
+  description = "Version of the Grafana Helm chart to use"
+  default     = ""  # Leave empty to use the latest version
+}
