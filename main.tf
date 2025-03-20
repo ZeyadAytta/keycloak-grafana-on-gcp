@@ -157,24 +157,28 @@ module "keycloak_radius" {
   # Certificate management
   create_certificate = false  # Set to false since certificate already exists
 }
-# Grafana-Keycloak Integration
-module "grafana_keycloak_integration" {
-  source = "./modules/grafana-keycloak-integration"
-  
+module "grafana_keycloak" {
+  source = "./modules/grafana-keycloak"
+
   # Domain values
-  grafana_url  = "grafana.cloudfiftytwo.com"
-  keycloak_url = "keycloak.cloudfiftytwo.com"
-  
-  # Realm name
-  keycloak_realm = "cloudfiftytwo"
-  
-  # Admin credentials
-  grafana_admin_user     = var.grafana_admin_user
-  grafana_admin_password = var.grafana_admin_password
-  keycloak_admin_user    = var.keycloak_admin_user
-  keycloak_admin_password = var.keycloak_admin_password
-  
+  grafana_url      = "grafana.cloudfiftytwo.com"
+  keycloak_url     = "keycloak-rad.cloudfiftytwo.com"
+  keycloak_auth_url = "keycloak-rad.cloudfiftytwo.com"  # Different URL for auth endpoints
+
+  # Realm configuration
+  realm_id          = "cloudfiftytwo"
+  realm_display_name = "Cloud52 Organization"
+
+  # Grafana configuration
+  grafana_namespace = "grafana"
+  grafana_pvc_name = "grafana-data"  # Use the same PVC name that was used by your original Grafana deployment
+  grafana_admin_password = "Passw0rd123"  # Use the same admin password
+
   # OAuth client configuration
   grafana_oauth_client_id     = "grafana"
-  grafana_oauth_client_secret = var.grafana_oauth_client_secret
+  grafana_oauth_client_secret = "12wedfvghyu890olmjhgtr43erfghjki8765"
+
+  # Test users
+  create_test_users    = true
+  test_users_password  = "Passw0rd123"
 }

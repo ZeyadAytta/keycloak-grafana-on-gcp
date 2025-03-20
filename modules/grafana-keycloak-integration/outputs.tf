@@ -1,34 +1,31 @@
+# modules/grafana-keycloak-integration/outputs.tf
+
 output "keycloak_realm_id" {
-  value = keycloak_realm.grafana_realm.id
-  description = "The ID of the Keycloak realm"
+  description = "The ID of the Keycloak realm used for Grafana"
+  value       = module.keycloak_integration.realm_id
 }
 
 output "grafana_client_id" {
-  value = keycloak_openid_client.grafana_client.client_id
-  description = "The client ID for Grafana in Keycloak"
-}
-
-output "keycloak_admin_user" {
-  value = keycloak_user.admin_user.username
-  description = "The admin user created in Keycloak for Grafana access"
-}
-
-output "keycloak_viewer_user" {
-  value = keycloak_user.viewer_user.username
-  description = "The viewer user created in Keycloak for Grafana access"
+  description = "The client ID used for Grafana"
+  value       = module.keycloak_integration.client_id
 }
 
 output "grafana_auth_url" {
-  value = "https://keycloak-rad.cloudfiftytwo.com/realms/${var.keycloak_realm}/protocol/openid-connect/auth"
   description = "The authentication URL for Grafana"
+  value       = module.keycloak_integration.auth_url
 }
 
 output "grafana_token_url" {
-  value = "https://keycloak-rad.cloudfiftytwo.com/realms/${var.keycloak_realm}/protocol/openid-connect/token"
   description = "The token URL for Grafana"
+  value       = module.keycloak_integration.token_url
 }
 
-output "grafana_api_url" {
-  value = "https://keycloak-rad.cloudfiftytwo.com/realms/${var.keycloak_realm}/protocol/openid-connect/userinfo"
-  description = "The API URL for Grafana"
+output "grafana_admin_user_id" {
+  description = "ID of the created Grafana admin user in Keycloak"
+  value       = var.create_default_admin_user ? keycloak_user.grafana_admin[0].id : null
+}
+
+output "grafana_viewer_user_id" {
+  description = "ID of the created Grafana viewer user in Keycloak"
+  value       = var.create_default_viewer_user ? keycloak_user.grafana_viewer[0].id : null
 }
