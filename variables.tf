@@ -138,4 +138,32 @@ variable "realm_display_name" {
  description = "keycloak Realm display  name"
  type = string
 }
+variable "network" {
+  description = "The name of the GCP VPC network to use for the GKE cluster"
+  type        = string
+  default     = "default"
+}
 
+variable "subnetwork" {
+  description = "The name of the GCP VPC subnetwork to use for the GKE cluster"
+  type        = string
+  default     = "default"
+}
+
+variable "network_project_id" {
+  description = "The project ID of the shared VPC network (only needed for Shared VPC setup)"
+  type        = string
+  default     = ""  # Default to empty, will use project_id if not specified
+}
+
+variable "ip_range_pods" {
+  description = "The secondary IP range name for pods"
+  type        = string
+  default     = ""  # If empty, GKE will create a range automatically
+}
+
+variable "ip_range_services" {
+  description = "The secondary IP range name for services"
+  type        = string
+  default     = ""  # If empty, GKE will create a range automatically
+}

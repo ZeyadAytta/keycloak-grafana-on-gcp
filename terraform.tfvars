@@ -9,7 +9,9 @@ max_nodes     = 4
 disk_size_gb  = "30"
 disk_type     = "pd-standard"  
 image_type    = "COS_CONTAINERD"  
-organization  = "Cloudfiftytwo"  
+organization  = "Cloudfiftytwo" 
+network            = "default"
+subnetwork         = "default" 
 #cert-manager
 letsencrypt_email = "study@cloudfiftytwo.com"
 email="study@cloudfiftytwo.com"

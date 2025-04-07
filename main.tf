@@ -37,6 +37,13 @@ module "gke" {
   disk_size_gb   = var.disk_size_gb
   disk_type      = var.disk_type
   image_type     = var.image_type
+
+ # Network configuration
+  network           = var.network
+  subnetwork        = var.subnetwork
+  network_project_id = var.network_project_id != "" ? var.network_project_id : var.project_id
+  ip_range_pods     = var.ip_range_pods
+  ip_range_services = var.ip_range_services
 }
 
 

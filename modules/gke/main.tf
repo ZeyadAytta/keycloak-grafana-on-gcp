@@ -3,8 +3,15 @@ resource "google_container_cluster" "primary" {
   location = var.region
   remove_default_node_pool = true
   initial_node_count       = 1
+  project    = var.project_id
+# Network configuration
+  network    = var.network
+  subnetwork = var.subnetwork
   networking_mode = "VPC_NATIVE"
-  ip_allocation_policy {}
+  ip_allocation_policy {
+    cluster_secondary_range_name  = var.ip_range_pods != "" ? var.ip_range_pods : null
+    services_secondary_range_name = var.ip_range_services != "" ? var.ip_range_services : null
+}
   workload_identity_config {
     workload_pool = "${var.project_id}.svc.id.goog"
   }
