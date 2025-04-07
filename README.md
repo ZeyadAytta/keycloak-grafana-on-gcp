@@ -115,8 +115,8 @@ Key variables in this project:
 | `keycloak_admin_password` | Keycloak admin password | - |
 | `grafana_admin_password` | Grafana admin password | - |
 | `radius_shared_secret` | RADIUS shared secret | - |
-| `realm_id` | Keycloak realm ID | "cloud52" |
-| `realm_display_name` | Keycloak realm display name | "cloud52-Org" |
+| `realm_id` | Keycloak realm ID | - |
+| `realm_display_name` | Keycloak realm display name | - |
 
 ## Outputs
 
