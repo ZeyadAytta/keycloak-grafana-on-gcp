@@ -1,93 +1,229 @@
-# gcp-terraform
+# GCP Infrastructure with Terraform
 
+This project contains Terraform configurations to set up a complete infrastructure stack on Google Cloud Platform (GCP) consisting of:
 
+- Google Kubernetes Engine (GKE) cluster
+- Nginx Ingress Controller
+- Cert-Manager with Let's Encrypt integration
+- Keycloak with RADIUS authentication
+- Grafana with Keycloak OAuth integration
 
-## Getting started
+## Architecture
 
-To make it easy for you to get started with GitLab, here's a list of recommended next steps.
+The infrastructure follows a microservices architecture:
 
-Already a pro? Just edit this README.md and make it your own. Want to make it easy? [Use the template at the bottom](#editing-this-readme)!
+- **GKE Cluster**: Managed Kubernetes environment to host all services
+- **Nginx Ingress**: HTTP/HTTPS traffic management and routing
+- **Cert-Manager**: Automatic TLS certificate management using Let's Encrypt
+- **Keycloak**: Identity and access management with RADIUS authentication for network devices
+- **Grafana**: Monitoring and visualization platform with Keycloak SSO integration
 
-## Add your files
+## Prerequisites
 
-- [ ] [Create](https://docs.gitlab.com/ee/user/project/repository/web_editor.html#create-a-file) or [upload](https://docs.gitlab.com/ee/user/project/repository/web_editor.html#upload-a-file) files
-- [ ] [Add files using the command line](https://docs.gitlab.com/topics/git/add_files/#add-files-to-a-git-repository) or push an existing Git repository with the following command:
+- [Terraform](https://www.terraform.io/downloads.html) (v1.0+)
+- [Google Cloud SDK](https://cloud.google.com/sdk/docs/install)
+- [kubectl](https://kubernetes.io/docs/tasks/tools/install-kubectl/)
+- A Google Cloud Platform account with billing enabled
+- A registered domain for the Keycloak and Grafana services
 
-```
-cd existing_repo
-git remote add origin https://gitlab.com/zeyad.aytta/gcp-terraform.git
-git branch -M main
-git push -uf origin main
-```
+## Getting Started
 
-## Integrate with your tools
+1. Clone this repository:
+   ```
+   git clone <repository-url>
+   cd gcp-terraform
+   ```
 
-- [ ] [Set up project integrations](https://gitlab.com/zeyad.aytta/gcp-terraform/-/settings/integrations)
+2. Authenticate with Google Cloud:
+   ```
+   gcloud auth application-default login
+   ```
 
-## Collaborate with your team
+3. Update the `terraform.tfvars` file with your specific values:
+   - Project ID
+   - Region
+   - Cluster configuration
+   - Domain names
+   - Passwords (or use environment variables for sensitive data)
 
-- [ ] [Invite team members and collaborators](https://docs.gitlab.com/ee/user/project/members/)
-- [ ] [Create a new merge request](https://docs.gitlab.com/ee/user/project/merge_requests/creating_merge_requests.html)
-- [ ] [Automatically close issues from merge requests](https://docs.gitlab.com/ee/user/project/issues/managing_issues.html#closing-issues-automatically)
-- [ ] [Enable merge request approvals](https://docs.gitlab.com/ee/user/project/merge_requests/approvals/)
-- [ ] [Set auto-merge](https://docs.gitlab.com/user/project/merge_requests/auto_merge/)
+4. Initialize the Terraform environment:
+   ```
+   terraform init
+   ```
 
-## Test and Deploy
+5. Create a plan to review the changes:
+   ```
+   terraform plan
+   ```
 
-Use the built-in continuous integration in GitLab.
+6. Apply the configuration:
+   ```
+   terraform apply
+   ```
 
-- [ ] [Get started with GitLab CI/CD](https://docs.gitlab.com/ee/ci/quick_start/)
-- [ ] [Analyze your code for known vulnerabilities with Static Application Security Testing (SAST)](https://docs.gitlab.com/ee/user/application_security/sast/)
-- [ ] [Deploy to Kubernetes, Amazon EC2, or Amazon ECS using Auto Deploy](https://docs.gitlab.com/ee/topics/autodevops/requirements.html)
-- [ ] [Use pull-based deployments for improved Kubernetes management](https://docs.gitlab.com/ee/user/clusters/agent/)
-- [ ] [Set up protected environments](https://docs.gitlab.com/ee/ci/environments/protected_environments.html)
+## Configuration Details
 
-***
+### GKE Cluster
 
-# Editing this README
+The GKE module creates a VPC-native cluster with configurable node count and machine types. It uses Workload Identity for GCP service access.
 
-When you're ready to make this README your own, just edit this file and use the handy template below (or feel free to structure it however you want - this is just a starting point!). Thanks to [makeareadme.com](https://www.makeareadme.com/) for this template.
+### Nginx Ingress
 
-## Suggestions for a good README
+Deploys the Nginx Ingress Controller as a LoadBalancer service to handle incoming HTTP/HTTPS traffic.
 
-Every project is different, so consider which of these sections apply to yours. The sections used in the template are suggestions for most open source projects. Also keep in mind that while a README can be too long and detailed, too long is better than too short. If you think your README is too long, consider utilizing another form of documentation rather than cutting out information.
+### Cert-Manager
 
-## Name
-Choose a self-explaining name for your project.
+Installs cert-manager and configures it to use Let's Encrypt for automatic TLS certificate management.
 
-## Description
-Let people know what your project can do specifically. Provide context and add a link to any reference visitors might be unfamiliar with. A list of Features or a Background subsection can also be added here. If there are alternatives to your project, this is a good place to list differentiating factors.
+### Keycloak
 
-## Badges
-On some READMEs, you may see small images that convey metadata, such as whether or not all the tests are passing for the project. You can use Shields to add some to your README. Many services also have instructions for adding a badge.
+Deploys Keycloak with:
+- RADIUS integration for network device authentication
+- OIDC/OAuth2 for web applications
+- Custom realm and client configuration
+- TLS encryption using cert-manager
 
-## Visuals
-Depending on what you are making, it can be a good idea to include screenshots or even a video (you'll frequently see GIFs rather than actual videos). Tools like ttygif can help, but check out Asciinema for a more sophisticated method.
+### Grafana
 
-## Installation
-Within a particular ecosystem, there may be a common way of installing things, such as using Yarn, NuGet, or Homebrew. However, consider the possibility that whoever is reading your README is a novice and would like more guidance. Listing specific steps helps remove ambiguity and gets people to using your project as quickly as possible. If it only runs in a specific context like a particular programming language version or operating system or has dependencies that have to be installed manually, also add a Requirements subsection.
+Deploys Grafana with:
+- Persistent storage for dashboards and settings
+- OAuth integration with Keycloak for authentication
+- Role-based access control via Keycloak groups (Admin, Editor, Viewer)
+- Automatic provisioning of test users
 
-## Usage
-Use examples liberally, and show the expected output if you can. It's helpful to have inline the smallest example of usage that you can demonstrate, while providing links to more sophisticated examples if they are too long to reasonably include in the README.
+## Module Structure
 
-## Support
-Tell people where they can go to for help. It can be any combination of an issue tracker, a chat room, an email address, etc.
+- `modules/gke`: GKE cluster configuration
+- `modules/nginx-ingress`: Nginx Ingress Controller installation
+- `modules/cert-manager`: Cert-Manager installation and Let's Encrypt configuration
+- `modules/keycloak`: Keycloak deployment with RADIUS
+- `modules/grafana`: Grafana deployment
+- `modules/grafana-keycloak`: Integration between Grafana and Keycloak
+- `modules/keycloak-app-integration`: Generic module for integrating applications with Keycloak
 
-## Roadmap
-If you have ideas for releases in the future, it is a good idea to list them in the README.
+## Variables
 
-## Contributing
-State if you are open to contributions and what your requirements are for accepting them.
+Key variables in this project:
 
-For people who want to make changes to your project, it's helpful to have some documentation on how to get started. Perhaps there is a script that they should run or some environment variables that they need to set. Make these steps explicit. These instructions could also be useful to your future self.
+| Variable | Description | Default |
+|----------|-------------|---------|
+| `project_id` | GCP Project ID | - |
+| `region` | GCP Region | - |
+| `cluster_name` | GKE Cluster name | - |
+| `keycloak_hostname` | Hostname for Keycloak | - |
+| `grafana_hostname` | Hostname for Grafana | - |
+| `keycloak_admin_password` | Keycloak admin password | - |
+| `grafana_admin_password` | Grafana admin password | - |
+| `radius_shared_secret` | RADIUS shared secret | - |
+| `realm_id` | Keycloak realm ID | "cloud52" |
+| `realm_display_name` | Keycloak realm display name | "cloud52-Org" |
 
-You can also document commands to lint the code or run tests. These steps help to ensure high code quality and reduce the likelihood that the changes inadvertently break something. Having instructions for running tests is especially helpful if it requires external setup, such as starting a Selenium server for testing in a browser.
+## Outputs
 
-## Authors and acknowledgment
-Show your appreciation to those who have contributed to the project.
+After successful deployment, the following outputs are available:
+
+- `keycloak_url`: URL to access Keycloak admin console
+- `grafana_url`: URL to access Grafana
+- `radius_service_ip`: External IP for RADIUS service
+- `keycloak_realm_id`: ID of the created Keycloak realm
+- `auth_url`: Keycloak authentication URL
+- `token_url`: Keycloak token URL
+
+## Authentication
+
+### Keycloak Administration
+
+Access the Keycloak admin console at `https://<keycloak_hostname>` using:
+- Username: `admin`
+- Password: Value of `keycloak_admin_password` in your configuration
+
+### Grafana
+
+Access Grafana at `https://<grafana_hostname>` using:
+- Direct login with admin credentials:
+  - Username: `admin`
+  - Password: Value of `grafana_admin_password`
+- OAuth login through Keycloak (if configured)
+
+### RADIUS
+
+The RADIUS server is accessible at the IP address shown in the `radius_service_ip` output.
+- Authentication port: 1812
+- Accounting port: 1813
+- Shared secret: Value of `radius_shared_secret`
+
+## Customization
+
+### Adding Custom Dashboards to Grafana
+
+To add custom dashboards, you can:
+1. Use the Grafana UI to create dashboards
+2. Export them as JSON
+3. Add them to a ConfigMap in the `modules/grafana` module
+
+### Adding Users and Groups in Keycloak
+
+The `modules/grafana-keycloak` module creates basic groups and test users. To add more:
+1. Access the Keycloak admin console
+2. Navigate to the realm specified in your configuration
+3. Add users and groups as needed
+4. Assign users to groups based on their Grafana access level
+
+## Maintenance
+
+### Scaling the GKE Cluster
+
+To adjust the number of nodes:
+1. Modify the `node_count`, `min_nodes`, or `max_nodes` variables
+2. Run `terraform apply`
+
+### Certificate Renewal
+
+Certificates are automatically renewed by cert-manager before expiry. No manual intervention is required.
+
+### Upgrading Keycloak or Grafana
+
+To upgrade either service:
+1. Update the version number in the respective module's variables
+2. Run `terraform apply`
+
+## Troubleshooting
+
+### Common Issues
+
+1. **Certificate issuance fails**:
+   - Check DNS records point to the correct IP
+   - Verify Let's Encrypt rate limits
+   - Check cert-manager logs with `kubectl logs -n cert-manager -l app=cert-manager`
+
+2. **Keycloak not accessible**:
+   - Check ingress configuration with `kubectl get ingress -n keycloak`
+   - Verify TLS certificate status
+   - Check Keycloak logs with `kubectl logs -n keycloak -l app=keycloak`
+
+3. **Grafana OAuth login fails**:
+   - Verify the Keycloak client configuration
+   - Check network connectivity between Grafana and Keycloak
+   - Check browser console for CORS issues
+
+## Security Considerations
+
+This setup includes several security features:
+- TLS encryption for all services
+- OAuth2/OIDC for secure authentication
+- RADIUS shared secret for network authentication
+- Kubernetes RBAC for API security
+
+For production use, consider these additional security measures:
+- Use external database for Keycloak (PostgreSQL)
+- Implement network policies in Kubernetes
+- Configure audit logging
+- Use Secret Manager for sensitive values
 
 ## License
-For open source projects, say how it is licensed.
 
-## Project status
-If you have run out of energy or time for your project, put a note at the top of the README saying that development has slowed down or stopped completely. Someone may choose to fork your project or volunteer to step in as a maintainer or owner, allowing your project to keep going. You can also make an explicit request for maintainers.
+This project is licensed under the [MIT License](LICENSE).
+
+## Contributing
+
+Contributions are welcome! Please feel free to submit a Pull Request.
