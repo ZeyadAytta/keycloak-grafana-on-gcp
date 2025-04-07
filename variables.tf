@@ -1,32 +1,20 @@
+#GKE variables
 variable "project_id" {}
 variable "region" {}
 variable "cluster_name" {}
 variable "machine_type" {}
-variable "node_count" {
-  default = 1
-}
-variable "min_nodes" {
-  default = 1
-}
-variable "max_nodes" {
-  default = 3
-}
+variable "node_count" {}
+variable "min_nodes" {}
+variable "max_nodes" {}
 variable "letsencrypt_email" {
   description = "Email address for Let's Encrypt notifications"
   type        = string
 }
-
-variable "rancher_bootstrap_password" {
-  description = "Bootstrap password for Rancher admin user"
-  type        = string
-  default     = "A$123456789"
-  sensitive   = true
-}
-
-variable "rancher_hostname" {
-  description = "Hostname for Rancher access"
+variable "keycloak_hostname" {
+  description = "keycloak fqdn"
   type        = string
 }
+
 variable "keycloak_admin_password" {
   description = "Admin password for Keycloak"
   type        = string
@@ -59,19 +47,22 @@ variable "radius_shared_secret" {
 variable "keycloak_url" {
   type        = string
   description = "The URL of the Keycloak instance"
-  default     = "keycloak.cloudfiftytwo.com"
 }
 
 variable "grafana_url" {
   type        = string
   description = "The URL of the Grafana instance"
-  default     = "grafana.cloudfiftytwo.com"
 }
 
 variable "keycloak_admin_user" {
   type        = string
   description = "The admin username for Keycloak"
   default     = "admin"
+}
+
+variable "organization" {
+  description = "Organization name for certificate subject"
+  type        = string
 }
 
 variable "grafana_admin_user" {
@@ -109,7 +100,6 @@ variable "grafana_namespace" {
 variable "grafana_hostname" {
   type        = string
   description = "The hostname for Grafana (legacy variable)"
-  default     = "grafana.cloudfiftytwo.com"
 }
 variable "grafana_helm_repo" {
   type        = string
@@ -122,3 +112,30 @@ variable "grafana_chart_version" {
   description = "Version of the Grafana Helm chart to use"
   default     = ""  # Leave empty to use the latest version
 }
+variable "disk_size_gb" {
+  description = "Size of the disk attached to each node in GB"
+  type        = number
+}
+
+variable "disk_type" {
+  description = "Type of disk attached to each node"
+  type        = string
+}
+
+variable "image_type" {
+  description = "The image type to use for nodes"
+  type        = string
+}
+variable "email" {
+  description = "Email address for Let's Encrypt notifications"
+  type        = string
+}
+variable "realm_id" {
+ description = "keycloak Realm name"
+ type = string
+}
+variable "realm_display_name" {
+ description = "keycloak Realm display  name"
+ type = string
+}
+

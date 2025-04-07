@@ -24,48 +24,19 @@ terraform {
   }
 }
 
-provider "google" {
-  project = var.project_id
-  region  = var.region
-}
-
-data "google_client_config" "default" {}
-
-provider "kubernetes" {
-  host                   = "https://${module.gke.endpoint}"
-  token                  = data.google_client_config.default.access_token
-  cluster_ca_certificate = base64decode(module.gke.ca_certificate)
-}
-
-provider "helm" {
-  kubernetes {
-    host                   = "https://${module.gke.endpoint}"
-    token                  = data.google_client_config.default.access_token
-    cluster_ca_certificate = base64decode(module.gke.ca_certificate)
-  }
-}
-
-provider "keycloak" {
-  url      = "https://keycloak-rad.cloudfiftytwo.com"
-  client_id = "admin-cli"
-  username  = var.keycloak_admin_user
-  password  = var.keycloak_admin_password
-  tls_insecure_skip_verify = true
-}
-provider "grafana" {
-  url  = "https://${var.grafana_url}"
-  auth = "${var.grafana_admin_user}:${var.grafana_admin_password}"
-}
 module "gke" {
   source = "./modules/gke"
 
   project_id    = var.project_id
   region        = var.region
   cluster_name  = var.cluster_name
-  machine_type  = "e2-medium"
-  node_count    = 1
-  min_nodes     = 1
-  max_nodes     = 4
+  machine_type  = var.machine_type
+  node_count    = var.node_count
+  min_nodes     = var.min_nodes
+  max_nodes     = var.max_nodes
+  disk_size_gb   = var.disk_size_gb
+  disk_type      = var.disk_type
+  image_type     = var.image_type
 }
 
 
@@ -75,55 +46,14 @@ module "nginx_ingress" {
 }
 module "cert_manager" {
   source = "./modules/cert-manager"
-  email  = "study@cloudfiftytwo.com"
+  email  = var.email
   depends_on = [module.nginx_ingress]
-}
-module "teleport" {
-  source = "./modules/teleport"
-  depends_on = [module.nginx_ingress, module.cert_manager]
-
-  auth_service_domain  = "auth.cloudfiftytwo.com"
-  proxy_service_domain = "proxy.cloudfiftytwo.com"
-}
-
-module "argocd" {
-  source = "./modules/argocd"
-  depends_on = [module.nginx_ingress, module.cert_manager]
-
-  argocd_hostname = "argocd.cloudfiftytwo.com"
-}
-module "rancher" {
-  source            = "./modules/rancher"
-  rancher_hostname  = "rancher.cloudfiftytwo.com"
-  email = "study@cloudfiftytwo.com"
-  depends_on        = [module.cert_manager]
-}
-module "keycloak" {
-  source             = "./modules/keycloak"
-  
-  # Required parameters
-  keycloak_hostname  = "keycloak.cloudfiftytwo.com"
-  admin_password     = var.keycloak_admin_password
-  
-  # Database configuration
-  use_external_database = false  # Set to true if you want to use external DB
-  postgres_password     = var.postgres_password  # Only used if use_external_database = false
-  
-  # If use_external_database = true, uncomment and set these values
-  # db_host              = "your-postgres-server.example.com"
-  # db_user              = "keycloak_user"
-  # db_password          = var.db_password
-  
-  # Optional: customize resource allocation
-  keycloak_replicas      = 2
-  resource_limits_cpu    = "1000m"
-  resource_limits_memory = "1Gi"
 }
 module "grafana" {
   source = "./modules/grafana"
 
   # Use direct values instead of variables that aren't declared
-  grafana_hostname = "grafana.cloudfiftytwo.com"
+  grafana_hostname = var.grafana_hostname
 
   # Get the admin password from a variable that should be declared in your variables.tf
   admin_password   = var.grafana_admin_password
@@ -136,16 +66,16 @@ module "grafana" {
   # resource_requests_cpu  = "100m"
   # resource_requests_memory = "128Mi"
 }
-module "keycloak_radius" {
-  source = "./modules/keycloak-radius"
+module "keycloak" {
+  source = "./modules/keycloak"
 
   # GKE settings
   gke_cluster_name = var.cluster_name
-  gke_project      = var.project_id  # Adjust variable name if needed
+  gke_project      = var.project_id  
   gke_region       = var.region
 
   # Keycloak settings
-  keycloak_hostname    = "keycloak-rad.cloudfiftytwo.com"
+  keycloak_hostname    = var.keycloak_hostname
   keycloak_admin_user  = "admin"
   keycloak_admin_password = var.keycloak_admin_password
 
@@ -156,18 +86,18 @@ module "keycloak_radius" {
 
   # Certificate management
   create_certificate = false  # Set to false since certificate already exists
+  organization = var.organization
 }
 module "grafana_keycloak" {
   source = "./modules/grafana-keycloak"
 
   # Domain values
-  grafana_url      = "grafana.cloudfiftytwo.com"
-  keycloak_url     = "keycloak-rad.cloudfiftytwo.com"
-  keycloak_auth_url = "keycloak-rad.cloudfiftytwo.com"  # Different URL for auth endpoints
-
-  # Realm configuration
-  realm_id          = "cloudfiftytwo"
-  realm_display_name = "Cloud52 Organization"
+  grafana_url      = var.grafana_hostname
+  keycloak_url     = var.keycloak_hostname
+  keycloak_auth_url = var.keycloak_hostname
+# Realm configuration
+  realm_id          = var.realm_id
+  realm_display_name = var.realm_display_name
 
   # Grafana configuration
   grafana_namespace = "grafana"

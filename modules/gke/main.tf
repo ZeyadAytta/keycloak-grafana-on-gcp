@@ -1,18 +1,18 @@
 resource "google_container_cluster" "primary" {
   name     = var.cluster_name
-  location = "us-central1-a"  # Specific zone instead of region
+  location = var.region
   remove_default_node_pool = true
   initial_node_count       = 1
   networking_mode = "VPC_NATIVE"
   ip_allocation_policy {}
   workload_identity_config {
-    workload_pool = "cloud52-teleport.svc.id.goog"
+    workload_pool = "${var.project_id}.svc.id.goog"
   }
 }
 
 resource "google_container_node_pool" "primary_nodes" {
   name       = "${var.cluster_name}-node-pool"
-  location   = "us-central1-a"  # Specific zone instead of region
+  location   = var.region
   cluster    = google_container_cluster.primary.name
   node_count = var.node_count
   
@@ -29,12 +29,10 @@ resource "google_container_node_pool" "primary_nodes" {
   }
   
   node_config {
-    # Basic configuration parameters
-    machine_type = var.machine_type
-    disk_size_gb = 30
-    disk_type    = "pd-standard"
-    image_type   = "COS_CONTAINERD"
-    
+     machine_type = var.machine_type
+     disk_size_gb = var.disk_size_gb
+     disk_type    = var.disk_type
+     image_type   = var.image_type 
     # Workload metadata configuration
     workload_metadata_config {
       mode = "GKE_METADATA"

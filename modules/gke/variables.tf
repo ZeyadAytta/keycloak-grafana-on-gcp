@@ -5,3 +5,6 @@ variable "machine_type" {}
 variable "node_count" {}
 variable "min_nodes" {}
 variable "max_nodes" {}
+variable "disk_size_gb" {}
+variable "disk_type" {}
+variable "image_type" {}

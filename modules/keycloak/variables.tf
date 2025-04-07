@@ -1,86 +1,61 @@
-# modules/keycloak/variables.tf
+variable "gke_cluster_name" {
+  description = "GKE cluster name"
+  type        = string
+}
+
+variable "gke_project" {
+  description = "GCP project ID"
+  type        = string
+}
+
+variable "gke_region" {
+  description = "GKE cluster region"
+  type        = string
+}
+
 variable "keycloak_hostname" {
   description = "Hostname for Keycloak"
   type        = string
 }
 
-variable "use_external_database" {
-  description = "Whether to use an external database instead of deploying PostgreSQL"
+variable "radius_shared_secret" {
+  description = "Shared secret for RADIUS authentication"
+  type        = string
+  sensitive   = true
+  default     = "secret" # Change this in production
+}
+
+variable "radius_auth_port" {
+  description = "RADIUS authentication port"
+  type        = number
+  default     = 1812
+}
+
+variable "radius_accounting_port" {
+  description = "RADIUS accounting port"
+  type        = number
+  default     = 1813
+}
+
+variable "keycloak_admin_user" {
+  description = "Keycloak admin username"
+  type        = string
+  default     = "admin"
+}
+
+variable "keycloak_admin_password" {
+  description = "Keycloak admin password"
+  type        = string
+  sensitive   = true
+  default     = "admin"
+}
+
+variable "create_certificate" {
+  description = "Whether to create a certificate resource or use existing"
   type        = bool
   default     = false
 }
-
-variable "postgres_password" {
-  description = "Password for the PostgreSQL database (if deploying PostgreSQL)"
-  type        = string
-  default     = ""
-  sensitive   = true
-}
-
-variable "admin_password" {
-  description = "Initial admin password for Keycloak"
-  type        = string
-  sensitive   = true
-}
-
-# External database variables (used only if use_external_database = true)
-variable "db_host" {
-  description = "External database hostname"
-  type        = string
-  default     = ""
-}
-
-variable "db_port" {
-  description = "External database port"
-  type        = number
-  default     = 5432
-}
-
-variable "db_user" {
-  description = "External database username"
-  type        = string
-  default     = ""
-}
-
-variable "db_password" {
-  description = "External database password"
-  type        = string
-  default     = ""
-  sensitive   = true
-}
-
-variable "db_name" {
-  description = "External database name"
-  type        = string
-  default     = "keycloak"
-}
-
-variable "keycloak_replicas" {
-  description = "Number of Keycloak replicas"
-  type        = number
-  default     = 1
-}
-
-variable "resource_limits_cpu" {
-  description = "CPU resource limits for Keycloak"
-  type        = string
-  default     = "1000m"
-}
-
-variable "resource_limits_memory" {
-  description = "Memory resource limits for Keycloak"
-  type        = string
-  default     = "1Gi"
-}
-
-variable "resource_requests_cpu" {
-  description = "CPU resource requests for Keycloak"
-  type        = string
-  default     = "500m"
-}
-
-variable "resource_requests_memory" {
-  description = "Memory resource requests for Keycloak"
-  type        = string
-  default     = "512Mi"
+variable "organization" {
+ description = "Keycloak Orginization"
+ type = string
 }

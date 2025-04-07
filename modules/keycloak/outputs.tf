@@ -1,25 +1,20 @@
-# modules/keycloak/outputs.tf
-output "keycloak_namespace" {
-  description = "The namespace where Keycloak is deployed"
-  value       = kubernetes_namespace.keycloak.metadata[0].name
-}
-
 output "keycloak_url" {
-  description = "The URL to access Keycloak"
+  description = "URL for accessing Keycloak"
   value       = "https://${var.keycloak_hostname}"
 }
 
-output "keycloak_service_name" {
-  description = "The name of the Keycloak service"
-  value       = kubernetes_service.keycloak.metadata[0].name
+output "radius_service_ip" {
+  description = "External IP address for RADIUS service"
+  value       = kubernetes_service.keycloak.status.0.load_balancer.0.ingress.0.ip
 }
 
-output "keycloak_ingress_name" {
-  description = "The name of the Keycloak ingress"
-  value       = kubernetes_ingress_v1.keycloak_ingress.metadata[0].name
+output "radius_auth_port" {
+  description = "RADIUS authentication port"
+  value       = var.radius_auth_port
 }
 
-output "postgres_service_name" {
-  description = "The name of the PostgreSQL service if deployed"
-  value       = var.use_external_database ? null : "keycloak-postgres"
+output "radius_accounting_port" {
+  description = "RADIUS accounting port"
+  value       = var.radius_accounting_port
 }
+
