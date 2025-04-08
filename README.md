@@ -30,7 +30,7 @@ The infrastructure follows a microservices architecture:
 
 1. Clone this repository:
    ```
-   git clone <repository-url>
+   git clone https://github.com/ZeyadAytta/keycloak-grafana-on-gcp
    cd gcp-terraform
    ```
 
