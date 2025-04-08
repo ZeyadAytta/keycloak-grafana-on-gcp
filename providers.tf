@@ -1,5 +1,6 @@
 provider "google" {
   project = var.project_id
+    credentials = file("./keycloak-sa.json")
   region  = var.region
 }
 
