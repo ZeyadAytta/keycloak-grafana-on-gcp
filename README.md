@@ -25,13 +25,14 @@ The infrastructure follows a microservices architecture:
 - [kubectl](https://kubernetes.io/docs/tasks/tools/install-kubectl/)
 - A Google Cloud Platform account with billing enabled
 - A registered domain for the Keycloak and Grafana services
+- Create a service account with appropriate permissions for deployments, download the json key file then add it on keycloak-grafana-on-gcp/
 
 ## Getting Started
 
 1. Clone this repository:
    ```
    git clone https://github.com/ZeyadAytta/keycloak-grafana-on-gcp
-   cd gcp-terraform
+   cd keycloak-grafana-on-gcp
    ```
 
 2. Authenticate with Google Cloud:
