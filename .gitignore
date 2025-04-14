@@ -1,7 +1,44 @@
-*.json
-*.tfstate.*
+# Terraform files
 *.tfstate
-rancher/
-*.sh
+*.tfstate.*
 .terraform/
 .terraform.lock.hcl
+
+# Shell scripts (if you want to keep these out)
+*.sh
+
+# Credentials and sensitive information
+.git-credentials
+.ssh/
+.docker/
+.oci/
+.kube/
+.config/
+*.pem
+*_key*
+*token*
+*.pub
+id_*
+
+# Cache and logs
+.cache/
+logs/
+*/logs/*
+.terraform.d/
+**/cache/**
+
+# Configuration files that might contain sensitive data
+*.boto
+.viminfo
+.lesshst
+.bash_history
+.bashrc
+.bash_profile
+.bash_logout
+
+# Custom project directories to ignore
+rancher/
+
+# Misc
+*~
+.DS_Store
